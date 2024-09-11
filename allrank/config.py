@@ -48,6 +48,7 @@ class DataConfig:
     batch_size = attrib(type=int)
     slate_length = attrib(type=int)
     validation_ds_role = attrib(type=str)
+    test_ds_role = attrib(type=str)
 
 
 @attrs

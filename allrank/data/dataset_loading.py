@@ -210,6 +210,21 @@ def load_libsvm_dataset(input_path: str, slate_length: int, validation_ds_role: 
 
     return train_ds, val_ds
 
+def load_test_libsvm_dataset(input_path: str, slate_length: int, test_ds_role: str) \
+        -> LibSVMDataset:
+    """
+    Helper function loading a train LibSVMDataset and a specified validation LibSVMDataset.
+    :param input_path: directory containing the LibSVM files
+    :param slate_length: target slate length of the training dataset
+    :param validation_ds_role: dataset role used for valdation (file name without an extension)
+    :return: tuple of LibSVMDatasets containing train and validation datasets,
+        where train slates are padded to slate_length and validation slates to val_ds.longest_query_length
+    """
+
+    test_ds = load_libsvm_dataset_role(test_ds_role, input_path, slate_length)
+
+    return test_ds
+
 
 def load_libsvm_dataset_role(role: str, input_path: str, slate_length: int) -> LibSVMDataset:
     """
