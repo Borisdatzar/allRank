@@ -63,7 +63,7 @@ def run():
 
     # Load the model from the pickle file
     with open(model_path, 'rb') as file:
-        model = pickle.load(file)
+        model = torch.load(model_path)
 
     if torch.cuda.device_count() > 1:
         model = CustomDataParallel(model)
