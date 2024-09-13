@@ -1,11 +1,12 @@
 import pickle
-
+from attr import asdict
 import numpy as np
 import os
 import torch
 import torch.nn as nn
 from allrank.config import Config
 from allrank.data.dataset_loading import create_data_loaders, load_test_libsvm_dataset
+from allrank.models.model import make_model
 from allrank.models.model_utils import get_torch_device, CustomDataParallel
 from allrank.training.eval_utils import eval_model
 from allrank.utils.command_executor import execute_command
@@ -66,36 +67,11 @@ def run():
     with open(model_path, 'rb') as file:
         state_dict = torch.load(model_path)
 
-    if 'output_layer.w_1.weight' in state_dict:
-        weight_shape = state_dict['output_layer.w_1.weight'].shape
-        logger.info(f"Shape of output_layer.w_1.weight: {weight_shape}")
+    n_features = test_ds.shape[-1]
+    model = make_model(n_features=n_features, **asdict(config.model, recurse=False))
 
-        if len(weight_shape) == 1:
-            input_size = weight_shape[0]
-            output_size = 1  
-            reshaped_weight = state_dict['output_layer.w_1.weight'].view(1, -1)  # Reshape to [1, input_size]
-        elif len(weight_shape) == 2:
-            input_size = weight_shape[1]
-            output_size = weight_shape[0]
-            reshaped_weight = state_dict['output_layer.w_1.weight']
-
-        else:
-            raise ValueError(f"Unexpected weight shape: {weight_shape}")
-    else:
-        raise KeyError("'output_layer.w_1.weight' not found in the state_dict")
-
-    logger.info(f"Determined input size: {input_size}, output size: {output_size}")
-
-    # Create a simple linear model with the determined input size and output size
-    model = nn.Linear(input_size, output_size)
-
-    # Load the state_dict into the new linear model, excluding the bias (if not needed)
-    model.load_state_dict({
-        'weight': reshaped_weight,
-        'bias': model.bias  # Retain the default bias if you don't care about it
-    })
-
-
+    model.load_state_dict(state_dict)
+    
     if torch.cuda.device_count() > 1:
             model = CustomDataParallel(model)
             logger.info("Model testing will be distributed to {} GPUs.".format(torch.cuda.device_count()))
