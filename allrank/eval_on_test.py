@@ -1,16 +1,14 @@
 import pickle
-from urllib.parse import urlparse
 
 import numpy as np
 import os
 import torch
 from allrank.config import Config
-from allrank.data.dataset_loading import load_libsvm_dataset, create_data_loaders, load_test_libsvm_dataset
+from allrank.data.dataset_loading import create_data_loaders, load_test_libsvm_dataset
 from allrank.models.model_utils import get_torch_device, CustomDataParallel
 from allrank.training.eval_utils import eval_model
 from allrank.utils.command_executor import execute_command
-from allrank.utils.experiments import dump_experiment_result, assert_expected_metrics
-from allrank.utils.file_utils import create_output_dirs, PathsContainer, copy_local_to_gs
+from allrank.utils.file_utils import PathsContainer
 from allrank.utils.ltr_logging import init_logger
 from allrank.utils.python_utils import dummy_context_mgr
 from argparse import ArgumentParser, Namespace
@@ -37,14 +35,13 @@ def run():
 
     paths = PathsContainer.from_args(args.job_dir, args.run_id, args.config_file_name)
 
-    logger = init_logger(paths.output_dir)
-    logger.info(f"created paths container {paths}")
+    logger = init_logger(paths.output_dir, log_name='evaluation.log')
 
     # read config
     config = Config.from_json(paths.config_path)
     logger.info("Config:\n {}".format(pformat(vars(config), width=1)))
 
-    output_config_path = os.path.join(paths.output_dir, "used_config.json")
+    output_config_path = os.path.join(paths.output_dir, "used_config_for_eval.json")
     execute_command("cp {} {}".format(paths.config_path, output_config_path))
 
     # train_ds, val_ds
@@ -62,7 +59,7 @@ def run():
     logger.info("Model testing will execute on {}".format(dev.type))
 
     # load model
-    model_path = os.path.join(paths.output_dir, 'results', 'model_train', 'model.pkl')
+    model_path = os.path.join(paths.output_dir, 'results', args.run_id, 'model.pkl')
 
     # Load the model from the pickle file
     with open(model_path, 'rb') as file:
@@ -83,7 +80,6 @@ def run():
             device=dev
         )
 
-    dump_experiment_result(args, config, paths.output_dir, result)
 
 
 if __name__ == "__main__":

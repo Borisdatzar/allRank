@@ -3,7 +3,7 @@ import os
 import sys
 
 
-def init_logger(output_dir: str) -> logging.Logger:
+def init_logger(output_dir: str, log_name='training.log') -> logging.Logger:
     log_format = "[%(levelname)s] %(asctime)s - %(message)s"
     log_dateformat = "%Y-%m-%d %H:%M:%S"
 
@@ -13,7 +13,7 @@ def init_logger(output_dir: str) -> logging.Logger:
     logger.setLevel(logging.INFO)
 
     # create a file handler
-    handler = logging.FileHandler(os.path.join(output_dir, "training.log"))
+    handler = logging.FileHandler(os.path.join(output_dir, log_name))
     handler.setLevel(logging.INFO)
 
     # create a logging format
