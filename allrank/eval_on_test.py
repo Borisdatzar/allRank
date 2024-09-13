@@ -70,15 +70,15 @@ def run():
         weight_shape = state_dict['output_layer.w_1.weight'].shape
         logger.info(f"Shape of output_layer.w_1.weight: {weight_shape}")
 
-        # Handle different possible dimensions
-        if len(weight_shape) == 2:
-            # If it's a 2D tensor (expected for a linear model)
-            input_size = weight_shape[1]  # number of columns = input size
-            output_size = weight_shape[0]  # number of rows = output size
-        elif len(weight_shape) == 1:
-            # If it's a 1D tensor, assume it's the weights of a single output neuron
-            input_size = weight_shape[0]  # input size is the only dimension
-            output_size = 1  # as you mentioned, output size is 1
+        if len(weight_shape) == 1:
+            input_size = weight_shape[0]
+            output_size = 1  
+            reshaped_weight = state_dict['output_layer.w_1.weight'].view(1, -1)  # Reshape to [1, input_size]
+        elif len(weight_shape) == 2:
+            input_size = weight_shape[1]
+            output_size = weight_shape[0]
+            reshaped_weight = state_dict['output_layer.w_1.weight']
+
         else:
             raise ValueError(f"Unexpected weight shape: {weight_shape}")
     else:
@@ -91,7 +91,7 @@ def run():
 
     # Load the state_dict into the new linear model, excluding the bias (if not needed)
     model.load_state_dict({
-        'weight': state_dict['output_layer.w_1.weight'],
+        'weight': reshaped_weight,
         'bias': model.bias  # Retain the default bias if you don't care about it
     })
 
