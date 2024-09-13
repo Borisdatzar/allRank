@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import os
 import torch
+import torch.nn as nn
 from allrank.config import Config
 from allrank.data.dataset_loading import create_data_loaders, load_test_libsvm_dataset
 from allrank.models.model_utils import get_torch_device, CustomDataParallel
@@ -63,12 +64,43 @@ def run():
 
     # Load the model from the pickle file
     with open(model_path, 'rb') as file:
-        model = torch.load(model_path)
+        state_dict = torch.load(model_path)
+
+    if 'output_layer.w_1.weight' in state_dict:
+        weight_shape = state_dict['output_layer.w_1.weight'].shape
+        logger.info(f"Shape of output_layer.w_1.weight: {weight_shape}")
+
+        # Handle different possible dimensions
+        if len(weight_shape) == 2:
+            # If it's a 2D tensor (expected for a linear model)
+            input_size = weight_shape[1]  # number of columns = input size
+            output_size = weight_shape[0]  # number of rows = output size
+        elif len(weight_shape) == 1:
+            # If it's a 1D tensor, assume it's the weights of a single output neuron
+            input_size = weight_shape[0]  # input size is the only dimension
+            output_size = 1  # as you mentioned, output size is 1
+        else:
+            raise ValueError(f"Unexpected weight shape: {weight_shape}")
+    else:
+        raise KeyError("'output_layer.w_1.weight' not found in the state_dict")
+
+    logger.info(f"Determined input size: {input_size}, output size: {output_size}")
+
+    # Create a simple linear model with the determined input size and output size
+    model = nn.Linear(input_size, output_size)
+
+    # Load the state_dict into the new linear model, excluding the bias (if not needed)
+    model.load_state_dict({
+        'weight': state_dict['output_layer.w_1.weight'],
+        'bias': model.bias  # Retain the default bias if you don't care about it
+    })
+
 
     if torch.cuda.device_count() > 1:
-        model = CustomDataParallel(model)
-        logger.info("Model testing will be distributed to {} GPUs.".format(torch.cuda.device_count()))
+            model = CustomDataParallel(model)
+            logger.info("Model testing will be distributed to {} GPUs.".format(torch.cuda.device_count()))
     model.to(dev)
+
 
 
     with torch.autograd.detect_anomaly() if config.detect_anomaly else dummy_context_mgr():  # type: ignore
