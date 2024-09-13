@@ -59,7 +59,7 @@ def run():
     logger.info("Model testing will execute on {}".format(dev.type))
 
     # load model
-    model_path = os.path.join(paths.output_dir, 'results', args.run_id, 'model.pkl')
+    model_path = os.path.join(paths.output_dir, 'model.pkl')
 
     # Load the model from the pickle file
     with open(model_path, 'rb') as file:
