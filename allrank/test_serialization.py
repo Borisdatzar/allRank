@@ -4,7 +4,7 @@ import numpy as np
 import os
 import torch
 import torch.nn as nn
-from allrank.config import Config
+from allrank.config import Config, FCConfig, TransformerConfig, PostModelConfig
 from allrank.data.dataset_loading import create_data_loaders, load_test_libsvm_dataset
 from allrank.models.model import make_model
 from allrank.models.model_utils import get_torch_device, CustomDataParallel
@@ -61,7 +61,9 @@ def run():
 
     params = model.serialize_params()
     print(params)
-    params['transformer'] = SimpleNamespace(**params['transformer'])
+    params['fc_model'] = FCConfig(**params['fc_model'])
+    params['transformer'] = TransformerConfig(**params['transformer'])
+    params['post_model'] = PostModelConfig(**params['post_model'])
 
     model = make_model(**params)
 
