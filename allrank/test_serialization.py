@@ -61,9 +61,8 @@ def run():
 
     params = model.serialize_params()
     print(params)
-    params['fc_model'] = FCConfig(**params['fc_model'])
+
     params['transformer'] = TransformerConfig(**params['transformer'])
-    params['post_model'] = PostModelConfig(**params['post_model'])
 
     model = make_model(**params)
 
