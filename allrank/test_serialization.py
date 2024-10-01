@@ -4,7 +4,7 @@ import numpy as np
 import os
 import torch
 import torch.nn as nn
-from allrank.config import Config, FCConfig, TransformerConfig, PostModelConfig
+from allrank.config import Config, FCConfig, TransformerConfig, PostModelConfig, PositionalEncoding
 from allrank.data.dataset_loading import create_data_loaders, load_test_libsvm_dataset
 from allrank.models.model import make_model
 from allrank.models.model_utils import get_torch_device, CustomDataParallel
@@ -61,6 +61,7 @@ def run():
 
     params = model.serialize_params()
     print(params)
+    params['transformer']['positional_encoding'] = PositionalEncoding(**params['transformer']['positional_encoding'])
 
     params['transformer'] = TransformerConfig(**params['transformer'])
 
