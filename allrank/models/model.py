@@ -1,13 +1,51 @@
+import json
+from typing import Dict
+
 import torch.nn as nn
 from attr import asdict
 
-from allrank.models.transformer import make_transformer
+from allrank.models.transformer import make_transformer, Encoder
 from allrank.utils.python_utils import instantiate_class
 
 
 def first_arg_id(x, *y):
     return x
 
+
+class OutputLayer(nn.Module):
+    """
+    This class represents an output block reducing the output dimensionality to d_output.
+    """
+    def __init__(self, d_model, d_output, output_activation=None):
+        """
+        :param d_model: dimensionality of the output layer input
+        :param d_output: dimensionality of the output layer output
+        :param output_activation: name of the PyTorch activation function used before scoring, e.g. Sigmoid or Tanh
+        """
+        super(OutputLayer, self).__init__()
+        self.activation = nn.Identity() if output_activation is None else instantiate_class(
+            "torch.nn.modules.activation", output_activation)
+        self.d_output = d_output
+        self.w_1 = nn.Linear(d_model, d_output)
+
+    def forward(self, x):
+        """
+        Forward pass through the OutputLayer.
+        :param x: input of shape [batch_size, slate_length, self.d_model]
+        :return: output of shape [batch_size, slate_length, self.d_output]
+        """
+        return self.activation(self.w_1(x).squeeze(dim=2))
+
+    def score(self, x):
+        """
+        Forward pass through the OutputLayer and item scoring by summing the individual outputs if d_output > 1.
+        :param x: input of shape [batch_size, slate_length, self.d_model]
+        :return: output of shape [batch_size, slate_length]
+        """
+        if self.d_output > 1:
+            return self.forward(x).sum(-1)
+        else:
+            return self.forward(x)
 
 class FCModel(nn.Module):
     """
@@ -23,6 +61,7 @@ class FCModel(nn.Module):
         """
         super(FCModel, self).__init__()
         sizes.insert(0, n_features)
+        self.sizes = sizes
         layers = [nn.Linear(size_in, size_out) for size_in, size_out in zip(sizes[:-1], sizes[1:])]
         self.input_norm = nn.LayerNorm(n_features) if input_norm else nn.Identity()
         self.activation = nn.Identity() if activation is None else instantiate_class(
@@ -48,7 +87,7 @@ class LTRModel(nn.Module):
     """
     This class represents a full neural Learning to Rank model with a given encoder model.
     """
-    def __init__(self, input_layer, encoder, output_layer):
+    def __init__(self, input_layer: FCModel, encoder:Encoder, output_layer: OutputLayer):
         """
         :param input_layer: the input block (e.g. FCModel)
         :param encoder: the encoding block (e.g. transformer.Encoder)
@@ -91,41 +130,36 @@ class LTRModel(nn.Module):
         """
         return self.output_layer.score(self.prepare_for_output(x, mask, indices))
 
+    def serialize_params(self):
+        return {
+            "n_features": self.input_layer.sizes[0],
+            "fc_model": {
+                "sizes": self.input_layer.sizes,
+                "input_norm": not isinstance(self.input_layer.input_norm, nn.Identity),  # True if not Identity, False otherwise,
+                "activation": None if isinstance(self.input_layer.activation, nn.Identity) else self.input_layer.activation.__class__.__name__,  # None if Identity, otherwise the activation class name,
+                "dropout": self.input_layer.droput.p,
+            },
+            "transformer": {
+                "N": self.encoder.N,
+                "d_ff": self.encoder.d_ff,
+                "h": self.encoder.h,
+                "positional_encoding": json.dumps(self.encoder.positional_encoding),
+                "dropout": self.encoder.dropout,
+            },
+            "post_model": {
+                "d_output": self.output_layer.d_output,
+                "output_activation": self.output_layer.activation,
+            }
+        }
 
-class OutputLayer(nn.Module):
-    """
-    This class represents an output block reducing the output dimensionality to d_output.
-    """
-    def __init__(self, d_model, d_output, output_activation=None):
-        """
-        :param d_model: dimensionality of the output layer input
-        :param d_output: dimensionality of the output layer output
-        :param output_activation: name of the PyTorch activation function used before scoring, e.g. Sigmoid or Tanh
-        """
-        super(OutputLayer, self).__init__()
-        self.activation = nn.Identity() if output_activation is None else instantiate_class(
-            "torch.nn.modules.activation", output_activation)
-        self.d_output = d_output
-        self.w_1 = nn.Linear(d_model, d_output)
+    @classmethod
+    def create(cls, params: Dict[str, str]):
+        n_features = params['n_features']
+        fc_model = params['fc_model']
+        transformer = params['transformer']
+        post_model = params['post_model']
 
-    def forward(self, x):
-        """
-        Forward pass through the OutputLayer.
-        :param x: input of shape [batch_size, slate_length, self.d_model]
-        :return: output of shape [batch_size, slate_length, self.d_output]
-        """
-        return self.activation(self.w_1(x).squeeze(dim=2))
-
-    def score(self, x):
-        """
-        Forward pass through the OutputLayer and item scoring by summing the individual outputs if d_output > 1.
-        :param x: input of shape [batch_size, slate_length, self.d_model]
-        :return: output of shape [batch_size, slate_length]
-        """
-        if self.d_output > 1:
-            return self.forward(x).sum(-1)
-        else:
-            return self.forward(x)
+        return make_model(fc_model, transformer, post_model, n_features)
 
 
 def make_model(fc_model, transformer, post_model, n_features):

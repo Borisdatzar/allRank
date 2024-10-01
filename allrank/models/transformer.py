@@ -29,13 +29,19 @@ class Encoder(nn.Module):
     """
     Stack of Transformer encoder blocks with positional encoding.
     """
-    def __init__(self, layer, N, position):
+    def __init__(self, layer, N, position, d_ff=None, h=None, dropout=None, n_features=None, positional_encoding=None):
         """
         :param layer: single building block to clone
         :param N: number of copies
         :param position: positional encoding module
         """
         super(Encoder, self).__init__()
+        self.N = N
+        self.d_ff = d_ff
+        self.h = h
+        self.dropout = dropout
+        self.n_features = n_features
+        self.positional_encoding = positional_encoding
         self.layers = clones(layer, N)
         self.norm = LayerNorm(layer.size)
         self.position = position
@@ -214,6 +220,7 @@ class PositionwiseFeedForward(nn.Module):
         :param dropout: dropout probability
         """
         super(PositionwiseFeedForward, self).__init__()
+        self.d_ff = d_ff
         self.w_1 = nn.Linear(d_model, d_ff)
         self.w_2 = nn.Linear(d_ff, d_model)
         self.dropout = nn.Dropout(dropout)
@@ -239,9 +246,10 @@ def make_transformer(N=6, d_ff=2048, h=8, dropout=0.1, n_features=136,
     :param positional_encoding: config.PositionalEncoding object containing PE config
     :return: Transformer-based Encoder with given hyperparameters
     """
+
     c = copy.deepcopy
     attn = MultiHeadedAttention(h, n_features, dropout)
 
     ff = PositionwiseFeedForward(n_features, d_ff, dropout)
     position = _make_positional_encoding(n_features, positional_encoding)
-    return Encoder(EncoderLayer(n_features, c(attn), c(ff), dropout), N, position)
+    return Encoder(EncoderLayer(n_features, c(attn), c(ff), dropout), N, position, d_ff, h, dropout, n_features, positional_encoding)

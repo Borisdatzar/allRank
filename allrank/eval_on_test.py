@@ -71,7 +71,7 @@ def run():
     model = make_model(n_features=n_features, **asdict(config.model, recurse=False))
 
     model.load_state_dict(state_dict)
-    
+
     if torch.cuda.device_count() > 1:
             model = CustomDataParallel(model)
             logger.info("Model testing will be distributed to {} GPUs.".format(torch.cuda.device_count()))
