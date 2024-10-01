@@ -16,6 +16,8 @@ from allrank.utils.python_utils import dummy_context_mgr
 from argparse import ArgumentParser, Namespace
 from pprint import pformat
 
+from types import SimpleNamespace
+
 
 def parse_args() -> Namespace:
     parser = ArgumentParser("allRank")
@@ -59,10 +61,7 @@ def run():
 
     params = model.serialize_params()
     print(params)
-    n_features = params['n_features']
-    fc_model = params['fc_model']
-    transformer = params['transformer']
-    post_model = params['post_model']
+    params['transformer'] = SimpleNamespace(**params['transformer'])
 
     model = make_model(**params)
 
