@@ -57,8 +57,18 @@ def run():
 
     model = make_model(n_features=30, **asdict(config.model, recurse=False))
 
-    print(model.serialize_params())
+    params = model.serialize_params()
+    print(params)
+    n_features = params['n_features']
+    fc_model = params['fc_model']
+    transformer = params['transformer']
+    post_model = params['post_model']
 
+    model = make_model(fc_model, transformer, post_model, n_features)
+
+    print('success!')
+
+    print(model.serialize_params())
 
 
 
