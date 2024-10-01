@@ -143,7 +143,10 @@ class LTRModel(nn.Module):
                 "N": self.encoder.N,
                 "d_ff": self.encoder.d_ff,
                 "h": self.encoder.h,
-                "positional_encoding": json.dumps(self.encoder.positional_encoding),
+                "positional_encoding":{
+                        'strategy': self.encoder.positional_encoding.strategy,
+                        'max_indices' : self.encoder.positional_encoding.max_indices
+                },
                 "dropout": self.encoder.dropout,
             },
             "post_model": {
