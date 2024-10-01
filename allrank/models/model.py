@@ -137,7 +137,7 @@ class LTRModel(nn.Module):
                 "sizes": self.input_layer.sizes,
                 "input_norm": not isinstance(self.input_layer.input_norm, nn.Identity),  # True if not Identity, False otherwise,
                 "activation": None if isinstance(self.input_layer.activation, nn.Identity) else self.input_layer.activation.__class__.__name__,  # None if Identity, otherwise the activation class name,
-                "dropout": self.input_layer.droput.p,
+                "dropout": self.input_layer.dropout.p,
             },
             "transformer": {
                 "N": self.encoder.N,
