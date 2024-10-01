@@ -64,7 +64,7 @@ def run():
     transformer = params['transformer']
     post_model = params['post_model']
 
-    model = make_model(fc_model, transformer, post_model, n_features)
+    model = make_model(n_features=n_features, **params)
 
     print('success!')
 
