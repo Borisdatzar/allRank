@@ -4,6 +4,7 @@ from typing import Dict
 import torch.nn as nn
 from attr import asdict
 
+from allrank.config import PositionalEncoding, TransformerConfig
 from allrank.models.transformer import make_transformer, Encoder
 from allrank.utils.python_utils import instantiate_class
 
@@ -157,13 +158,10 @@ class LTRModel(nn.Module):
 
     @classmethod
     def create(cls, params: Dict[str, str]):
-        n_features = params['n_features']
-        fc_model = params['fc_model']
-        transformer = params['transformer']
-        post_model = params['post_model']
+        params['transformer']['positional_encoding'] = PositionalEncoding(**params['transformer']['positional_encoding'])
+        params['transformer'] = TransformerConfig(**params['transformer'])
 
-        return make_model(fc_model, transformer, post_model, n_features)
-
+        return make_model(**params)
 
 def make_model(fc_model, transformer, post_model, n_features):
     """
