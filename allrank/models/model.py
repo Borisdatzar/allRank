@@ -136,7 +136,7 @@ class LTRModel(nn.Module):
             "fc_model": {
                 "sizes": self.input_layer.sizes,
                 "input_norm": not isinstance(self.input_layer.input_norm, nn.Identity),  # True if not Identity, False otherwise,
-                "activation": self.input_layer.activation.__class__.__name__,  # None if Identity, otherwise the activation class name,
+                "activation": self.input_layer.activation.__class__.__name__,
                 "dropout": self.input_layer.dropout.p,
             },
             "transformer": {
@@ -151,7 +151,7 @@ class LTRModel(nn.Module):
             },
             "post_model": {
                 "d_output": self.output_layer.d_output,
-                "output_activation": self.output_layer.activation,
+                "output_activation": self.output_layer.activation.__class__.__name__,
             }
         }
 
