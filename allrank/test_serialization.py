@@ -57,7 +57,7 @@ def run():
     with open(model_path, 'rb') as file:
         state_dict = torch.load(model_path)
 
-    model = make_model(n_features=30, **asdict(config.model, recurse=False))
+    model = make_model(n_features=29, **asdict(config.model, recurse=False))
 
     params = model.serialize_params()
     print(params)
@@ -66,6 +66,11 @@ def run():
     params['transformer'] = TransformerConfig(**params['transformer'])
 
     model = make_model(**params)
+    test_data = [[0 for _ in range(29)] for _ in range(25)]
+    with torch.no_grad():
+        output = model(torch.tensor(test_data))
+
+    print(output)
 
     print('success!')
 
