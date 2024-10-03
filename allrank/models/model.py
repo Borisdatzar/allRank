@@ -157,7 +157,7 @@ class LTRModel(nn.Module):
         }
 
     @classmethod
-    def create(cls, params: Dict[str, str]):
+    def create(cls, params: Dict):
         params['transformer']['positional_encoding'] = PositionalEncoding(**params['transformer']['positional_encoding'])
         params['transformer'] = TransformerConfig(**params['transformer'])
 

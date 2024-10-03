@@ -66,11 +66,16 @@ def run():
     # Load the model from the pickle file
     with open(model_path, 'rb') as file:
         state_dict = torch.load(model_path)
+        new_state_dict = {}
+        for key, value in state_dict.items():
+             new_key = key.replace("module.", "")
+             new_state_dict[new_key] = value
 
     n_features = test_ds.shape[-1]
     model = make_model(n_features=n_features, **asdict(config.model, recurse=False))
+    print(model.serialize_params())
 
-    model.load_state_dict(state_dict)
+    model.load_state_dict(new_state_dict)
 
     if torch.cuda.device_count() > 1:
             model = CustomDataParallel(model)
