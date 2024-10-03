@@ -66,6 +66,7 @@ def run():
     params['transformer'] = TransformerConfig(**params['transformer'])
 
     model = make_model(**params)
+    model.eval()
     test_data = [[0 for _ in range(29)] for _ in range(25)]
     with torch.no_grad():
         output = model(torch.tensor(test_data))
