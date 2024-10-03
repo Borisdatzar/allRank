@@ -135,7 +135,7 @@ class LTRModel(nn.Module):
         return {
             "n_features": self.input_layer.sizes[0],
             "fc_model": {
-                "sizes": self.input_layer.sizes,
+                "sizes": self.input_layer.sizes[1:],
                 "input_norm": not isinstance(self.input_layer.input_norm, nn.Identity),  # True if not Identity, False otherwise,
                 "activation": self.input_layer.activation.__class__.__name__,
                 "dropout": self.input_layer.dropout.p,
