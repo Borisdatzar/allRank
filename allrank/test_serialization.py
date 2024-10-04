@@ -61,7 +61,7 @@ def run():
 
     params = model.serialize_params()
     print(params)
-    params['transformer']['positional_encoding'] = PositionalEncoding(**params['transformer']['positional_encoding'])
+    params['transformer']['positional_encoding'] = None if params['transformer']['positional_encoding'] is None else PositionalEncoding(**params['transformer']['positional_encoding'])
 
     params['transformer'] = TransformerConfig(**params['transformer'])
 
