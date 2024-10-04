@@ -95,9 +95,9 @@ def run():
     with torch.no_grad():
         output = model(padded_data, mask, indices)
 
+    output_list = output.tolist()
 
-
-    print(output)
+    print(output_list)
 
     print('success!')
 
