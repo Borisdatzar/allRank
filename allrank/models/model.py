@@ -145,8 +145,8 @@ class LTRModel(nn.Module):
                 "d_ff": self.encoder.d_ff,
                 "h": self.encoder.h,
                 "positional_encoding":{
-                        'strategy': self.encoder.positional_encoding.strategy,
-                        'max_indices' : self.encoder.positional_encoding.max_indices
+                        'strategy': None if self.encoder.positional_encoding is None else self.encoder.positional_encoding.strategy,
+                        'max_indices' : None if self.encoder.positional_encoding is None else self.encoder.positional_encoding.max_indices
                 },
                 "dropout": self.encoder.dropout,
             },
