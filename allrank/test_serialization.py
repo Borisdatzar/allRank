@@ -97,7 +97,7 @@ def run():
 
     output_list = output.tolist()
 
-    print(output_list)
+    print(output_list[0][:25])
 
     print('success!')
 
