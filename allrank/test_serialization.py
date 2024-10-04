@@ -82,8 +82,9 @@ def run():
     # Ensure padded_data is of dtype torch.float32
     padded_data = padded_data.float()
 
-    # Create the mask: True for actual items, False for padding
-    mask = torch.cat([torch.ones(1, 25, dtype=torch.bool), torch.zeros(1, 225, dtype=torch.bool)], dim=1)  # Shape: [1, 250]
+    # Create the mask: False for actual items, True for padding
+    mask = torch.cat([torch.zeros(1, 25, dtype=torch.bool), torch.ones(1, 225, dtype=torch.bool)], dim=1)  # Shape: [1, 250]
+
 
     # Create the indices, 1..250
     indices = torch.arange(1, 251).unsqueeze(0).long()  # Shape: [1, 250]
