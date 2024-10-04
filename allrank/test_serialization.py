@@ -16,6 +16,9 @@ from allrank.utils.python_utils import dummy_context_mgr
 from argparse import ArgumentParser, Namespace
 from pprint import pformat
 
+import torch
+import torch.nn.functional as F
+
 from types import SimpleNamespace
 
 
@@ -66,10 +69,31 @@ def run():
     params['transformer'] = TransformerConfig(**params['transformer'])
 
     model = make_model(**params)
-    model.eval()
+
+
+    # Create the test data with shape [25, 29] for 25 items, each with 29 features
     test_data = [[0 for _ in range(29)] for _ in range(25)]
+
+    # Convert test data to a tensor and add batch dimension
+    test_data_tensor = torch.tensor(test_data).unsqueeze(0)  # Shape becomes [1, 25, 29]
+
+    # Pad the test data to expand from 25 items to 250 items (adding 225 padding rows)
+    padded_data = F.pad(test_data_tensor, (0, 0, 0, 225), mode='constant', value=0)  # Shape: [1, 250, 29]
+
+    # Create the mask: True for actual items, False for padding
+    mask = torch.cat([torch.ones(1, 25, dtype=torch.bool), torch.zeros(1, 225, dtype=torch.bool)], dim=1)  # Shape: [1, 250]
+
+    # Create the indices, 1..250
+    indices = torch.arange(1, 251).unsqueeze(0)  # Shape: [1, 250]
+
+    # Set the model to evaluation mode
+    model.eval()
+
+    # Forward pass with no gradient calculation
     with torch.no_grad():
-        output = model(torch.tensor(test_data))
+        output = model(padded_data, mask, indices)
+
+
 
     print(output)
 
