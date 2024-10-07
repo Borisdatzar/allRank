@@ -55,6 +55,10 @@ def run():
 
     test_dl, _ = create_data_loaders(
         test_ds, test_ds, num_workers=config.data.num_workers, batch_size=config.data.batch_size)
+    print("PRINTING DATA")
+    for i in test_dl:
+        print(i)
+        print('#'*10)
 
     # gpu support
     dev = get_torch_device()
