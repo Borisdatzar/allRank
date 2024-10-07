@@ -53,11 +53,11 @@ def run():
         test_ds_role=config.data.test_ds_role,
     )
     print ('PRINTING DS')
-    i=1
+    k=1
     for i in test_ds:
+        print(k)
         print(i)
-        print(i, j)
-        i+=1
+        k+=1
 
     print('#'*20)
 
