@@ -111,6 +111,8 @@ class LibSVMDataset(Dataset):
 
         self.X_by_qid = np.split(X, groups)[:-1]
         self.y_by_qid = np.split(y, groups)[:-1]
+        print("PRINT Y BY QID")
+        print(self.y_by_qid)
 
         self.longest_query_length = max([len(a) for a in self.X_by_qid])
 
@@ -128,11 +130,13 @@ class LibSVMDataset(Dataset):
         :return: LibSVMDataset instantiated from a given file and with an optional transformation defined
         """
         x, y, query_ids = load_svmlight_file(svm_file_path, query_id=True)
+        '''
         print("PRINTING DS")
         print(x)
         print(list(y))
         print(list(query_ids))
         print('#'*10)
+        '''
         logger.info("loaded dataset from {} and got x shape {}, y shape {} and query_ids shape {}".format(
             svm_file_path, x.shape, y.shape, query_ids.shape))
         return cls(x, y, query_ids, transform)
