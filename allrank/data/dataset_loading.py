@@ -128,6 +128,11 @@ class LibSVMDataset(Dataset):
         :return: LibSVMDataset instantiated from a given file and with an optional transformation defined
         """
         x, y, query_ids = load_svmlight_file(svm_file_path, query_id=True)
+        print("PRINTING DS")
+        print(x)
+        print(y)
+        print(query_ids)
+        print('#'*10)
         logger.info("loaded dataset from {} and got x shape {}, y shape {} and query_ids shape {}".format(
             svm_file_path, x.shape, y.shape, query_ids.shape))
         return cls(x, y, query_ids, transform)
@@ -235,14 +240,7 @@ def load_libsvm_dataset_role(role: str, input_path: str, slate_length: int) -> L
     :return: loaded LibSVMDataset
     """
     ds = load_libsvm_role(input_path, role)
-    print ('PRINTING DS')
-    k=1
-    for i in ds:
-        print(k)
-        print(i)
-        k+=1
 
-    print('#'*20)
     if role == "train":
         ds.transform = transforms.Compose([FixLength(slate_length), ToTensor()])
     else:
