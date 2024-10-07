@@ -18,6 +18,9 @@ def ndcg(y_pred, y_true, ats=None, gain_function=lambda x: torch.pow(2, x) - 1, 
     :param filler_value: a filler NDCG value to use when there are no relevant items in listing
     :return: NDCG values for each slate and rank passed, shape [batch_size, len(ats)]
     """
+    print('#'*10)
+    print(y_pred)
+    print(y_true)
     idcg = dcg(y_true, y_true, ats, gain_function, padding_indicator)
     ndcg_ = dcg(y_pred, y_true, ats, gain_function, padding_indicator) / idcg
     idcg_mask = idcg == 0
