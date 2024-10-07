@@ -130,8 +130,8 @@ class LibSVMDataset(Dataset):
         x, y, query_ids = load_svmlight_file(svm_file_path, query_id=True)
         print("PRINTING DS")
         print(x)
-        print(y)
-        print(query_ids)
+        print(list(y))
+        print(list(query_ids))
         print('#'*10)
         logger.info("loaded dataset from {} and got x shape {}, y shape {} and query_ids shape {}".format(
             svm_file_path, x.shape, y.shape, query_ids.shape))
