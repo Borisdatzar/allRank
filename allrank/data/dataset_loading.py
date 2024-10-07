@@ -104,6 +104,12 @@ class LibSVMDataset(Dataset):
         :param query_ids: ndarray containing group (slate) membership of dataset items of shape [dataset_size, features_dim]
         :param transform: a callable defining an optional transformation called on the dataset
         """
+        print('debugging')
+        print(list(y))
+        print(list(query_ids))
+        for i, j in enumerate(list(y)):
+            if j == 1:
+                print(list(query_ids)[i])
         X = X.toarray()
 
         _, indices, counts = np.unique(query_ids, return_index=True, return_counts=True)
