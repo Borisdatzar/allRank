@@ -113,12 +113,20 @@ class LibSVMDataset(Dataset):
         X = X.toarray()
 
         _, indices, counts = np.unique(query_ids, return_index=True, return_counts=True)
+        print('Indices:', indices)
+        print('Counts:', counts)
+
+
+
         groups = np.cumsum(counts[np.argsort(indices)])
+
+        print('Groups (split boundaries):', groups)
 
         self.X_by_qid = np.split(X, groups)[:-1]
         self.y_by_qid = np.split(y, groups)[:-1]
-        print("PRINT Y BY QID")
-        print(self.y_by_qid)
+        print("Split y_by_qid:")
+        for i, y_group in enumerate(self.y_by_qid):
+            print(f"Group {i}: {y_group}")
 
         self.longest_query_length = max([len(a) for a in self.X_by_qid])
 
