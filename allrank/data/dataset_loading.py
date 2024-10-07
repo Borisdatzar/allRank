@@ -104,29 +104,12 @@ class LibSVMDataset(Dataset):
         :param query_ids: ndarray containing group (slate) membership of dataset items of shape [dataset_size, features_dim]
         :param transform: a callable defining an optional transformation called on the dataset
         """
-        print('debugging')
-        print(list(y))
-        print(list(query_ids))
-        for i, j in enumerate(list(y)):
-            if j == 1:
-                print(list(query_ids)[i])
         X = X.toarray()
-
         _, indices, counts = np.unique(query_ids, return_index=True, return_counts=True)
-        print('Indices:', indices)
-        print('Counts:', counts)
-
-
-
         groups = np.cumsum(counts[np.argsort(indices)])
-
-        print('Groups (split boundaries):', groups)
 
         self.X_by_qid = np.split(X, groups)[:-1]
         self.y_by_qid = np.split(y, groups)[:-1]
-        print("Split y_by_qid:")
-        for i, y_group in enumerate(self.y_by_qid):
-            print(f"Group {i}: {y_group}")
 
         self.longest_query_length = max([len(a) for a in self.X_by_qid])
 
@@ -143,14 +126,8 @@ class LibSVMDataset(Dataset):
         :param transform: a callable defining an optional transformation called on the dataset
         :return: LibSVMDataset instantiated from a given file and with an optional transformation defined
         """
+
         x, y, query_ids = load_svmlight_file(svm_file_path, query_id=True)
-        '''
-        print("PRINTING DS")
-        print(x)
-        print(list(y))
-        print(list(query_ids))
-        print('#'*10)
-        '''
         logger.info("loaded dataset from {} and got x shape {}, y shape {} and query_ids shape {}".format(
             svm_file_path, x.shape, y.shape, query_ids.shape))
         return cls(x, y, query_ids, transform)
