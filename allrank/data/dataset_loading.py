@@ -235,6 +235,14 @@ def load_libsvm_dataset_role(role: str, input_path: str, slate_length: int) -> L
     :return: loaded LibSVMDataset
     """
     ds = load_libsvm_role(input_path, role)
+    print ('PRINTING DS')
+    k=1
+    for i in ds:
+        print(k)
+        print(i)
+        k+=1
+
+    print('#'*20)
     if role == "train":
         ds.transform = transforms.Compose([FixLength(slate_length), ToTensor()])
     else:

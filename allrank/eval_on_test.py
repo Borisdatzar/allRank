@@ -52,15 +52,6 @@ def run():
         slate_length=config.data.slate_length,
         test_ds_role=config.data.test_ds_role,
     )
-    print ('PRINTING DS')
-    k=1
-    for i in test_ds:
-        print(k)
-        print(i)
-        k+=1
-
-    print('#'*20)
-
 
     test_dl, _ = create_data_loaders(
         test_ds, test_ds, num_workers=config.data.num_workers, batch_size=config.data.batch_size)
