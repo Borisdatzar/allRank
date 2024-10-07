@@ -140,7 +140,7 @@ class LTRModel(nn.Module):
                 "activation": self.input_layer.activation.__class__.__name__,
                 "dropout": self.input_layer.dropout.p,
             },
-            "transformer": {
+            "transformer": None if self.encoder is None else {
                 "N": self.encoder.N,
                 "d_ff": self.encoder.d_ff,
                 "h": self.encoder.h,
