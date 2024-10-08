@@ -72,22 +72,26 @@ def run():
 
 
     # Create the test data with shape [25, 29] for 25 items, each with 29 features
-    test_data = [[0 for _ in range(29)] for _ in range(25)]
+    import random
+    random.seed(42)
+    n_actions = 25
+    SLATE_LENGTH = 250
+    test_data = [[random.random()  for _ in range(29)] for _ in range(n_actions)]
 
     # Convert test data to a tensor and add batch dimension
     test_data_tensor = torch.tensor(test_data).unsqueeze(0)  # Shape becomes [1, 25, 29]
 
     # Pad the test data to expand from 25 items to 250 items (adding 225 padding rows)
-    padded_data = F.pad(test_data_tensor, (0, 0, 0, 225), mode='constant', value=0)  # Shape: [1, 250, 29]
+    padded_data = F.pad(test_data_tensor, (0, 0, 0, SLATE_LENGTH-n_actions), mode='constant', value=0)  # Shape: [1, 250, 29]
     # Ensure padded_data is of dtype torch.float32
     padded_data = padded_data.float()
 
     # Create the mask: False for actual items, True for padding
-    mask = torch.cat([torch.zeros(1, 25, dtype=torch.bool), torch.ones(1, 225, dtype=torch.bool)], dim=1)  # Shape: [1, 250]
+    mask = torch.cat([torch.zeros(1, n_actions, dtype=torch.bool), torch.ones(1, SLATE_LENGTH-n_actions, dtype=torch.bool)], dim=1)  # Shape: [1, 250]
 
 
     # Create the indices, 1..250
-    indices = torch.arange(1, 251).unsqueeze(0).long()  # Shape: [1, 250]
+    indices = torch.arange(1, SLATE_LENGTH+1).unsqueeze(0).long()  # Shape: [1, 250]
 
     # Set the model to evaluation mode
     model.eval()
@@ -98,7 +102,7 @@ def run():
 
     output_list = output.tolist()
 
-    print(output_list[0][:25])
+    print(output_list[0][:n_actions])
 
     print('success!')
 
