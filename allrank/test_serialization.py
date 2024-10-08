@@ -75,7 +75,7 @@ def run():
     import random
     random.seed(42)
     n_actions = 25
-    SLATE_LENGTH = 150
+    SLATE_LENGTH = 25
     test_data = [[random.random()  for _ in range(29)] for _ in range(n_actions)]
 
     # Convert test data to a tensor and add batch dimension
