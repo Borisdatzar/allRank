@@ -75,30 +75,31 @@ def run():
     import random
     random.seed(42)
     n_actions = 25
-    SLATE_LENGTH = 25
+    #SLATE_LENGTH = 150
     test_data = [[random.random()  for _ in range(29)] for _ in range(n_actions)]
 
     # Convert test data to a tensor and add batch dimension
     test_data_tensor = torch.tensor(test_data).unsqueeze(0)  # Shape becomes [1, 25, 29]
 
     # Pad the test data to expand from 25 items to 250 items (adding 225 padding rows)
-    padded_data = F.pad(test_data_tensor, (0, 0, 0, SLATE_LENGTH-n_actions), mode='constant', value=0)  # Shape: [1, 250, 29]
+    #padded_data = F.pad(test_data_tensor, (0, 0, 0, SLATE_LENGTH-n_actions), mode='constant', value=0)  # Shape: [1, 250, 29]
     # Ensure padded_data is of dtype torch.float32
-    padded_data = padded_data.float()
+    test_data_tensor.float()
+    #padded_data = padded_data.float()
 
     # Create the mask: False for actual items, True for padding
-    mask = torch.cat([torch.zeros(1, n_actions, dtype=torch.bool), torch.ones(1, SLATE_LENGTH-n_actions, dtype=torch.bool)], dim=1)  # Shape: [1, 250]
+    mask = torch.zeros(1, n_actions, dtype=torch.bool)  # Shape: [1, n_actions]
 
 
     # Create the indices, 1..250
-    indices = torch.arange(1, SLATE_LENGTH+1).unsqueeze(0).long()  # Shape: [1, 250]
+    indices = torch.arange(1, n_actions+1).unsqueeze(0).long()  # Shape: [1, 250]
 
     # Set the model to evaluation mode
     model.eval()
 
     # Forward pass with no gradient calculation
     with torch.no_grad():
-        output = model(padded_data, mask, indices)
+        output = model(test_data_tensor, mask, indices)
 
     output_list = output.tolist()
 
