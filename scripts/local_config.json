@@ -17,12 +17,13 @@
     },
     "post_model": {
       "output_activation": "Sigmoid",
-      "d_output": 4
+      "d_output": 1
     }
   },
   "data": {
     "path": "/allrank/dummy_data",
     "validation_ds_role": "vali",
+    "test_ds_role": "vali",
     "num_workers": 1,
     "batch_size": 64,
     "slate_length": 240
@@ -50,11 +51,8 @@
     "ndcg_5"
   ],
   "loss": {
-    "name": "ordinal",
-    "args": {
-      "n": 4
-    }
-  },
+    "name": "neuralNDCG",
+    "args": {}  },
   "expected_metrics" : {
     "val": {
       "ndcg_5": 0.76
