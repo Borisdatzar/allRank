@@ -14,11 +14,7 @@
     "N": 2,
     "d_ff": 128,
     "h": 4,
-    "positional_encoding": 
-    {
-    	"strategy": "learned",
-    	"max_indices": 250
-    },
+    "positional_encoding": null,
     "dropout": 0.1
    },
    "post_model":
@@ -33,14 +29,15 @@
     "validation_ds_role": "vali",
     "test_ds_role" : "vali",
     "num_workers": 1,
-    "batch_size": 100,
+    "batch_size": 80,
     "slate_length": 250
   },
   "optimizer": {
     "name": "Adam",
     "args": {
       "lr": 0.001,
-      "weight_decay": 0.0001
+      "weight_decay": 0.0001,
+      "capturable": true
     }
   },
   "lr_scheduler": {
