@@ -1,0 +1,71 @@
+{
+  "model":
+  {
+  "fc_model": {
+    "sizes": [
+      64
+    ],
+    "input_norm": false,
+    "activation": "ReLU",
+    "dropout": 0.2
+  },
+  "transformer": 
+  {
+    "N": 2,
+    "d_ff": 128,
+    "h": 4,
+    "positional_encoding": null,
+    "dropout": 0.1
+   },
+   "post_model":
+    {
+      "output_activation": "Sigmoid",
+      "d_output": 1
+    }
+  },
+  "data":
+  {
+    "path": "/allrank/playback_data_with_hci_no_interaction_features",
+    "validation_ds_role": "vali",
+    "test_ds_role" : "vali",
+    "num_workers": 1,
+    "batch_size": 80,
+    "slate_length": 250
+  },
+  "optimizer": {
+    "name": "Adam",
+    "args": {
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "capturable": true
+    }
+  },
+  "lr_scheduler": {
+    "name": "ReduceLROnPlateau",
+    "args": {
+      "mode": "min",            
+      "factor": 0.1,           
+      "patience": 5,          
+      "threshold": 0.0001,   
+      "cooldown": 0,        
+      "min_lr": 0.000001      
+    }
+  }
+  ,
+  "training":
+  {
+    "epochs": 400,
+    "early_stopping_patience": 30,
+    "gradient_clipping_norm": null
+  },
+  "val_metric": "ndcg_5",
+  "metrics": [
+          "ndcg_5"
+  ],
+  "loss":
+  {
+    "name": "neuralNDCG",
+    "args": {}
+  },
+  "detect_anomaly": false
+}
